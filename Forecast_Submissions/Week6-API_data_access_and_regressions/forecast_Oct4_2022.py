@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
+#%%
 def create_usgs_url(site_no, begin_date, end_date):
     return (
         f'https://waterdata.usgs.gov/nwis/dv?'
@@ -40,19 +41,25 @@ def open_usgs_data(site, begin_date, end_date):
 #         and put it into a pandas dataframe called `df`
 
 #TODO: Your code here
-site = None
-begin_date = None
-end_date = None
-df = None
+site = '09506000'
+begin_date = '1992-10-02'
+end_date = '2022-10-02'
+df = open_usgs_data(site, begin_date, end_date)
 
+#plot yearly streamflow
+df['streamflow'].plot()
+plt.semilogy()
+plt.ylabel('Streamflow [cfs]')
+plt.xlabel('')
 
-# %%
+#%%
 # Step 2: Convert the daily data into weekly means in a new 
 #         dataframe called `weekly_df`
-
 #TODO: Your code here
-weekly_df = None
-
+#weekly_df = None
+weekly_df = df.resample('W').mean()
+weekly_df = weekly_df[['streamflow']]
+print(weekly_df)
 
 # %%
 # Step 3: Create 2 variables, `x` and `y` where `x` contains
@@ -61,9 +68,8 @@ weekly_df = None
 # Hint: Remember you can use `weekly_df.iloc` to index rows!
 
 #TODO: Your code here
-x = None
-y = None
-
+x = weekly_df.iloc[0:-1]
+y = weekly_df.iloc[1:]
 
 # %%
 # Step 5: Verify that you can plot the data
@@ -80,7 +86,8 @@ plt.ylabel("Next week streamflow [cfs]")
 #         And use the `fit` function to map x -> y
 
 #TODO: Your code here
-full_regression = None
+full_regression = LinearRegression()
+full_regression.fit(x,y)
 # ...
 
 # `np.around` rounds numbers to given number of digits
@@ -99,9 +106,8 @@ print(f'The r^2 value is {r2}')
 # Note: You might get a warning here saying the regression
 #       was fitted with feature names, that's okay!
 x_sample = np.arange(0, 15000, 1000).reshape(-1, 1)
-
 #TODO: Your code here
-y_predicted = None
+y_predicted = full_regression.predict(x_sample)
 
 plt.scatter(x, y )
 plt.plot(x_sample, y_predicted, color='black', label='Regression line')
@@ -109,13 +115,14 @@ plt.xlabel("Current week streamflow [cfs]")
 plt.ylabel("Next week streamflow [cfs]")
 plt.legend()
 
-
 # %%
-# Step 8: Create a `weekofyear` variable which just counts the week of year
+# Step 8: Create a `weekofyear` variable which just 
+# counts the week of year
 # Note this is similar to the `dayofyear` variable we've seen in class
 
 #TODO: Your code here
-weekofyear = None
+weekly_df_woy = weekly_df
+woy = weekly_df_woy.index.isocalendar().week
 
 
 # %%
@@ -124,9 +131,10 @@ weekofyear = None
 # Note: This week's week of year is 38
 
 #TODO: Your code here
-this_week = None
-next_week = None
-following_week = None
+thisweek_no = 38
+this_week = weekly_df_woy[woy == thisweek_no]
+next_week = weekly_df_woy[woy == (thisweek_no+1)]
+following_week = weekly_df_woy[woy == (thisweek_no+2)]
 
 
 # %%
@@ -145,9 +153,9 @@ plt.ylabel('Future streamflow [cfs]')
 #          one that maps `this_week` to `following_week`
 
 #TODO: Your code here
-one_week_regression = None
+one_week_regression = LinearRegression().fit(this_week, next_week)
 # ...
-two_week_regression = None
+two_week_regression = LinearRegression().fit(next_week, following_week)
 # ...
 
 #%%
@@ -158,8 +166,9 @@ two_week_regression = None
 regression_input = weekly_df.iloc[[-1]]
 
 #TODO: Your code here
-one_week_prediction = None
-two_week_prediction = None
+one_week_prediction = one_week_regression.predict(regression_input)
+two_week_prediction = two_week_regression.predict(regression_input)
+#full_regression.predict(x_sample)
 
 print(f'One week prediction: {one_week_prediction.flatten()[0]}')
 print(f'Two week prediction: {two_week_prediction.flatten()[0]}')
