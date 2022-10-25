@@ -7,26 +7,26 @@ x = np.arange(0, 3**3)
 
 #%%
 # 1. What is the length of x?
-
+print(len(x))
 #%%
 # 2. How do you get the first value out of x?
-
+print(x[0])
 #%%
 # 3. How do you get the last value out of x?
-
+print(x[-1])
 #%%
 # 4. How do you get the first 5 values out of x?
-
+print(x[:5])
 #%%
 # 5. What about the last 5 values?
-
+print(x[-5:])
 #%%
 # 6. How do you get every other value out of x?
-
+print(x[::2])
 #%%
 # 7. Get the first 9 values of x, and reshape them to a
 #    3x3 matrix. Assign this matrix to the variable `y`
-y = None
+y = x[:9].reshape(3,3)
 print(y)
 
 #%%
@@ -37,16 +37,17 @@ y = np.array([
     [6, 7, 8],
 ])
 
+print(y[1,1])
 #%%
 # 9. How do you get the first row out of y?
-
+print(y[0])
 #%%
 # 10. How do you get the first column out of y?
-
+print(y[:,0])
 #%%
 # 11. Reshape x into a 3x3x3 cube. Assign this
 #     to the variable `z`
-z = None
+z = x.reshape(3,3,3)
 print(z.shape)
 
 #%%
@@ -63,14 +64,20 @@ z = np.array([
      [24,25,26]]
 ])
 
-
+print(z[1,1,1])
 #%%
 # 13. How do you take the total sum of z?
-
+print(np.sum(z))
 #%%
 # 14. How do you take the sum along the first 
 #     dimension of z?
-
+print(np.sum(z,0))
+#or
+#print(np.sum(z, axis=0))
 #%%
 # 15. How do you take the sum along the last
 #     dimension of z?
+print(np.sum(z,-1))
+#or
+#print(np.sum(z, axis=-1))
+# %%

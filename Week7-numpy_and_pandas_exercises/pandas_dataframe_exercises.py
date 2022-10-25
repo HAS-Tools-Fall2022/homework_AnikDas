@@ -66,45 +66,55 @@ verde_df.head()
 
 # %%
 # 1. How do you see a quick summary of what is in `verde_df`?
-
+verde_df.head()
 # %%
 # 2. How do you get a listing of the columns in `verde_df`?
-
+verde_df.columns
 # %%
 # 3. How do you select the streamflow column in `verde_df`?
-
+verde_df.streamflow
 #%%
 # 4. How do you plot the streamflow in `verde_df`?
-
+verde_df.plot(x = "yday", y ="streamflow", kind = "scatter") 
 #%%
 # 5. How do you get the last streamflow value from `verde_df`?
-
+verde_df["streamflow"].iloc[-1]
 #%%
 # 6. What is the mean streamflow value for the 30 year period?
-
+verde_df["streamflow"].mean
 #%%
 # 7. What is the maximum value for the 30 year period?
-
+verde_df["streamflow"].max
 #%% 
 # 8. How do you find the maximum streamflow value for each year?
+verde_df.groupby(['year'])["streamflow"].max()
 
 #%%
 # 9. How do you make a scatter plot of 
 #    `dayl (s)` versus `tmax (deg c)`?
 # INFO: `dayl` is the day length in seconds and
 #       `tmax` is the daily maximum temperature
-
+verde_df.plot(x = "dayl (s)", y ="tmax (deg c)", kind = "scatter") 
 #%%
 # 10. How do you calculate (and plot) the mean
 #     daily minimum temperature for each day of year? 
 #     And plot it?
 # INFO: Daily minimum temperature is in the column `tmin (deg c)`
 
+tmin_mean = verde_df.groupby(['yday'])["tmin (deg c)"].mean()
+print(tmin_mean)
+#
+#plot
+tmin_mean.plot()
+plt.xlabel('Day of Year')
+plt.ylabel('Daily Min Temp, deg C')
 #%%
 # 11. What is the average value of all columns for October 10 
 #     across all years?
 # INFO: October 10 is the 283rd day of year
-
+df_Oct10 = verde_df.loc[verde_df['yday'] == 283].mean()
+print(df_Oct10)
+#verde_df.groupby(["yday"].mean()
 #%%
 # ----------------------------------------------------------------------------
 # ========== NEW DATASET =====================================================
@@ -126,19 +136,38 @@ iris_df.head()
 
 # %%
 # 12. How do you view the "unique" species in the `iris_df` index?
-
+iris_df.index.unique()
 # %%
 # 13. How do you "locate" only rows for the `versicolor` species?
-
+versicolor_df = iris_df.loc['versicolor']
+print(versicolor_df)
 # %%
 # 14. How do you group by the 3 different species and take 
 #     the mean across the whole dataframe?
-
+iris_df.groupby(['species']).mean()
 # %%
 # 15. How do you make a scatter plot of the `sepal length (cm)` 
 #     versus the `petal length (cm)` for the `versicolor`` species?
 #
+versicolor_df.plot(x= 'sepal length (cm)',y = 'petal length (cm)', kind = 'scatter')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Petal Length (cm')
+plt.title('Versicolor Data')
 # BONUS OPTION: Do the same plot for `setosa` and `virginica` all on 
 #               the same figure. Color them 'tomato', 'darkcyan', 
 #               and 'darkviolet', respectively. 
 #               Worth 1 point extra credit
+
+#%%
+#creating indices
+setosa_df = iris_df.loc['setosa']
+virginica_df = iris_df.loc['virginica']
+
+plt.scatter(x= versicolor_df['sepal length (cm)'], y = versicolor_df['petal length (cm)'],  color = 'tomato', label = 'versicolor')
+plt.scatter(x= setosa_df['sepal length (cm)'], y = setosa_df['petal length (cm)'], color = 'darkcyan', label = 'setosa')
+plt.scatter(x= virginica_df['sepal length (cm)'], y = virginica_df['petal length (cm)'], color = 'darkviolet', label = 'virginica')
+plt.legend()
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Petal Length (cm')
+plt.title('All Data')
+# %%
