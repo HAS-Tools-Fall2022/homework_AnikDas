@@ -25,7 +25,7 @@ gages = gpd.read_file(
 
 huc8 = gpd.read_file(
     '/vsicurl/https://github.com/HAS-Tools-Fall2022'
-    '/Course-Materials22/raw/main/data/huc_shapefile/'
+    '/Course-Materials22/raw/main/data/arizona_huc8_shapefile/'
     'WBDHU8.shp'
 )
 
