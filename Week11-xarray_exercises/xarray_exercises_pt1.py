@@ -1,4 +1,6 @@
 #%%
+#conda install -c conda-forge xarray dask netcdf4 zarr fsspec aiohttp requests pooch
+#%%
 # Welcome to the first xarray homework assignment.
 # For this assignment you'll learn some of the basics
 # of using xarray on a real dataset. 
@@ -39,8 +41,12 @@ def download_gridmet_variable(variable, year):
 downloaded_files = []
 
 #TODO: Your code here
-year = None
-variables_to_download = None
+year = 2020
+variables_to_download = ['pet', 'srad', 'vpd']
+
+for var in variables_to_download:
+    x=download_gridmet_variable(var, year)
+    downloaded_files.append(x)
 
 print('Done downloading data!')
 print(downloaded_files)
@@ -57,7 +63,7 @@ print(downloaded_files)
 # what's in the data.
 
 # TODO: Your code here
-ds = None
+ds = xr.open_mfdataset(downloaded_files)
 ds
 
 #%%
@@ -69,7 +75,7 @@ ds
 # dataset.
 
 #TODO: Your code here
-ds = None
+ds = ds.drop('crs')
 ds
 
 #%%
@@ -81,8 +87,8 @@ ds
 # of the dataset is and print that out.
 
 # TODO: Your code here
-attrs = None
-print(None)
+attrs = ds.attrs
+print(attrs)
 
 #%%
 # Step 4:
@@ -96,8 +102,10 @@ print(None)
 
 #TODO: Your code here
 for var in ds:
-    description = None
-    units = None
+    data = ds[var]
+    data_attrs = data.attrs
+    description = data.attrs['description']
+    units = data.attrs['units']
     print(description, units)
 
 
@@ -107,7 +115,8 @@ for var in ds:
 # and assign it to the `first_ds` variable
 
 # TODO: Your code here
-first_ds = None
+first_ds = ds.isel(day=0)
+first_ds
 
 # %%
 # Step 6:
@@ -116,6 +125,7 @@ first_ds = None
 # "mean_vapor_pressure_deficit".
 
 #TODO: Your code here
+first_ds['mean_vapor_pressure_deficit'].plot() 
 
 # %%
 # Step 7:
@@ -123,7 +133,7 @@ first_ds = None
 # "potential_evapotranspiration".
 
 #TODO: Your code here
-
+first_ds['potential_evapotranspiration'].plot()
 # %%
 # Step 8:
 # Select the first 30 entries of latitude 
@@ -131,7 +141,10 @@ first_ds = None
 # from the full `ds`
 
 #TODO: Your code here
-subset_ds = None
+subset_ds = ds.isel(
+    lat=slice(0,30),
+    lon=slice(20,40)
+)
 subset_ds
 
 #%%
@@ -142,8 +155,9 @@ subset_ds
 # and "lon" dimensions.
 
 # TODO: Your code here
-spatial_mean_ds = None
-spatial_mean_ds
+reduce_dims = ['lat', 'lon']
+spatial_mean_ds = subset_ds.mean(reduce_dims)
+spatial_mean_ds.load()
 
 # %%
 # Step 10:
@@ -154,7 +168,8 @@ spatial_mean_ds
 fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 
 # TODO: Your code here
-
+spatial_mean_ds['potential_evapotranspiration'].plot(ax=axes[0])
+spatial_mean_ds['mean_vapor_pressure_deficit'].plot(ax=axes[1])
 # %%
 # Step 11:
 # For a better look at whether they're correlated,
@@ -163,7 +178,10 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 # version so use that background to get started.
 
 # TODO: Your code here
-
+spatial_mean_ds.plot.scatter(
+    x='potential_evapotranspiration',
+    y='mean_vapor_pressure_deficit'
+)
 
 # %%
 # Step 12:
@@ -172,12 +190,16 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 # function to calculate the correlation matrix between
 # the potential ET and vapor pressure deficit.
 
+#[cor(x,x), cor(x,y), cor(y,x), cor(y,y)]
+#
+#
+#
+
 # TODO: Your code here
 np.corrcoef(
-    None,
-    None
+    spatial_mean_ds['potential_evapotranspiration'],
+    spatial_mean_ds['mean_vapor_pressure_deficit']
 )
-
 
 # %%
 # Step 13:
@@ -196,8 +218,11 @@ np.corrcoef(
 # perfectly divisible by 4, so we just throw away any
 # extra grid cells.
 
+#coarse_amount = dict(name=number)
+#coarse_amount = {name:number}
+
 #TODO: Your code here
-coarse_amount = None
+coarse_amount = {'lat':4, 'lon':4}
 
 coarse_ds = ds.coarsen(
     coarse_amount, 
@@ -212,8 +237,8 @@ coarse_ds
 # over the "day", "dimension". 
 
 # TODO: Your code here
-correlation = None
-correlation
+correlation = xr.corr(coarse_ds['mean_vapor_pressure_deficit'], coarse_ds['potential_evapotranspiration'], dim='day')
+correlation.load()
 
 # %%
 # Step 15:
@@ -231,7 +256,7 @@ correlation
 # do these variables tend to be decoupled?
 
 # TODO: Your code here
-
+correlation.plot()
 
 # %%
 # Congratulations that's it for this assignment!
